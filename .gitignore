@@ -1,0 +1,11 @@
+/data
+/TODO.md
+**/__pycache__
+**/*.ply
+**/results*
+**/misc
+**/*.pt
+**/*.pth
+**/cache*
+temp.py
+/web

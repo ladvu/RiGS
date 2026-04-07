@@ -1,0 +1,24 @@
+[submodule "dependencies/vipe"]
+	path = dependencies/vipe
+	url = https://github.com/nv-tlabs/vipe.git
+[submodule "dependencies/fused_ssim"]
+	path = dependencies/fused_ssim
+	url = https://github.com/rahul-goel/fused-ssim.git
+# [submodule "dependencies/autoseg"]
+# 	path = dependencies/autoseg
+# 	url = https://github.com/zrporz/AutoSeg-SAM2.git
+[submodule "dependencies/tapnet"]
+	path = dependencies/tapnet
+	url = https://github.com/google-deepmind/tapnet.git
+# [submodule "dependencies/liegroups"]
+# 	path = dependencies/liegroups
+# 	url = https://github.com/utiasSTARS/liegroups.git
+[submodule "dependencies/moge"]
+	path = dependencies/moge
+	url = https://github.com/microsoft/MoGe.git
+[submodule "dependencies/sam1"]
+	path = dependencies/sam1
+	url = https://github.com/zrporz/segment-anything-1
+[submodule "dependencies/sam2"]
+	path = dependencies/sam2
+	url = https://github.com/facebookresearch/segment-anything-2.git
