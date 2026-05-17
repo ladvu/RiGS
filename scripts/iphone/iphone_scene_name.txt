@@ -1,7 +1,0 @@
-apple
-block
-paper-windmill
-space-out
-spin
-teddy
-wheel
