@@ -297,7 +297,6 @@ def create_motion_base_splats(
     )
     if not tracks_3d.check_sizes():
         import ipdb
-
         ipdb.set_trace()
 
     rot_type = "6d"

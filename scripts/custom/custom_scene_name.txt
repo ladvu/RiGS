@@ -1,7 +1,0 @@
-gold-fish
-horsejump-high
-swing
-pigs
-dog
-dog-agility
-libby

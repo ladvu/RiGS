@@ -30,6 +30,8 @@ if __name__ == '__main__':
 
     img_dir = os.path.join(args.data_root, "images")
     video_dir = os.path.join(args.data_root, "videos")
+    os.makedirs(img_dir, exist_ok=True)
+    os.makedirs(video_dir, exist_ok=True)
     image_seqs = os.listdir( img_dir)
     videos = [p.split(".")[0] for p in os.listdir(video_dir)]
 

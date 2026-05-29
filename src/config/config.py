@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 class Config:
     # Disable viewer
     # disable_viewer: bool = False
-    mode: Literal["dynamic", "static", "fused"] = "fused"
     # Path to the .pt file. If provide, it will skip training and render a video
     ckpt: Optional[str] = None
     # render video

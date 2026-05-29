@@ -10,6 +10,9 @@ import sys
 from pathlib import Path
 from tapnet_torch import tapir_model, transforms
 from tqdm import tqdm
+import zipfile
+from typing import Iterator
+import cv2
 
 
 def read_video(folder_path):
@@ -18,6 +21,22 @@ def read_video(folder_path):
     print(f"{video.shape=} {video.dtype=} {video.min()=} {video.max()=}")
     video = media._VideoArray(video)
     return video
+
+def read_static_mask_artifacts(zip_file_path: Path) -> torch.Tensor:
+    """
+    Read static-valid binary masks from zipped PNG files.
+    """
+    masks = []
+    with zipfile.ZipFile(zip_file_path, "r") as z:
+        for file_name in sorted(z.namelist()):
+            if not file_name.endswith(".png"):
+                continue
+            with z.open(file_name) as f:
+                mask_buffer = np.frombuffer(f.read(), dtype=np.uint8)
+                mask = cv2.imdecode(mask_buffer, cv2.IMREAD_UNCHANGED)
+                assert mask is not None, f"Failed to decode static mask {file_name}"
+                masks.append(torch.from_numpy(mask.copy() > 0))
+    return torch.stack(masks, dim=0)
 
 
 def preprocess_frames(frames):
@@ -93,7 +112,8 @@ def main():
 
     video = read_video(folder_path)
     num_frames, height, width = video.shape[0:3]
-    masks = read_video(mask_dir)
+    # masks = read_video(mask_dir)
+    masks = read_static_mask_artifacts(mask_dir)
     masks = (masks.reshape((num_frames, height, width, -1)) > 0).any(axis=-1)
     print(f"{video.shape=} {masks.shape=} {masks.max()=} {masks.sum()=}")
 
@@ -117,7 +137,7 @@ def main():
 
         all_points = np.stack([t * np.ones_like(y), y_resize, x_resize], axis=-1)
         mask = masks[t]
-        in_mask = mask[y, x] > 0.5
+        in_mask = mask[y, x] < 0.5
         all_points_t = all_points[in_mask]
         print(f"{all_points.shape=} {all_points_t.shape=} {t=}")
         outputs = []

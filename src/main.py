@@ -1,17 +1,12 @@
 from config import Config
 import tyro
-from runner import *
+from runner import FusedRunner
 from utils.misc_utils import seed_everything
 
 # TODO: integrate viewer
 
 def main(cfg: Config):
-    runner = {
-        "fused": FusedRunner,
-        "dynamic": DynamicRunner,
-        "static": StaticRunner,
-    }[cfg.mode](cfg)
-
+    runner = FusedRunner
     if cfg.ckpt is not None:
         # run eval only
         res = runner.load_checkpoint(cfg.ckpt)
