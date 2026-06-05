@@ -1,5 +1,6 @@
 body {
   font-family: 'Noto Sans', sans-serif;
+  color: #2f3437;
 }
 
 
@@ -13,8 +14,8 @@ body {
     margin-bottom: 5px;
 }
 
-.dnerf {
-  font-variant: small-caps;
+.project-name {
+  font-weight: 700;
 }
 
 
@@ -49,6 +50,7 @@ body {
 
 .publication-title {
     font-family: 'Google Sans', sans-serif;
+    line-height: 1.12;
 }
 
 .publication-authors {
@@ -78,6 +80,12 @@ body {
     text-decoration: underline;
 }
 
+.publication-note {
+  color: #666;
+  font-family: 'Google Sans', sans-serif;
+  margin: 0.85rem 0 1rem;
+}
+
 .author-block {
   display: inline-block;
 }
@@ -89,69 +97,286 @@ body {
   /*color: #4286f4;*/
 }
 
-.publication-video {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-bottom: 56.25%;
-
-    overflow: hidden;
-    border-radius: 10px !important;
+.video-link-card {
+  aspect-ratio: 16 / 9;
+  background: #222;
+  border-radius: 8px;
+  display: block;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
-.publication-video iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.video-link-card img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+  transition: opacity 160ms ease, transform 160ms ease;
+  width: 100%;
+}
+
+.video-link-card:hover img {
+  opacity: 0.68;
+  transform: scale(1.015);
+}
+
+.video-play-button {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 3rem;
+  height: 5rem;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7rem;
+}
+
+.video-link-label {
+  bottom: 1rem;
+  color: #fff;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .publication-body img {
 }
 
-.results-carousel {
-  overflow: hidden;
+.teaser-image {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
 }
 
-.results-carousel .item {
-  margin: 5px;
-  overflow: hidden;
-  border: 1px solid #bbb;
-  border-radius: 10px;
-  padding: 0;
-  font-size: 0;
+.publication-figure {
+  margin: 0 0 1.5rem;
 }
 
-.results-carousel video {
+.publication-figure img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #e5e8eb;
+  background: #fff;
+}
+
+.publication-figure figcaption {
+  color: #555;
+  font-size: 0.95rem;
+  margin-top: 0.55rem;
+  text-align: center;
+}
+
+.method-points {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.method-points .column {
+  border-top: 3px solid #3273dc;
+  padding-top: 1rem;
+}
+
+.method-points p {
+  color: #555;
+}
+
+.multi-comparison-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1.5rem;
+}
+
+.multi-compare {
+  --p1: 25%;
+  --p2: 50%;
+  --p3: 75%;
+  aspect-ratio: 16 / 9;
+  background: #111;
+  border-radius: 8px;
   margin: 0;
+  overflow: hidden;
+  position: relative;
+  cursor: ew-resize;
 }
 
-
-.interpolation-panel {
-  background: #f5f5f5;
-  border-radius: 10px;
-}
-
-.interpolation-panel .interpolation-image {
-  width: 100%;
-  border-radius: 5px;
-}
-
-.interpolation-video-column {
-}
-
-.interpolation-panel .slider {
-  margin: 0 !important;
-}
-
-.interpolation-panel .slider {
-  margin: 0 !important;
-}
-
-#interpolation-image-wrapper {
+.multi-image {
+  display: block;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
   width: 100%;
 }
-#interpolation-image-wrapper img {
-  border-radius: 5px;
+
+.multi-image.layer-1 {
+  clip-path: inset(0 calc(100% - var(--p1)) 0 0);
+}
+
+.multi-image.layer-2 {
+  clip-path: inset(0 calc(100% - var(--p2)) 0 var(--p1));
+}
+
+.multi-image.layer-3 {
+  clip-path: inset(0 calc(100% - var(--p3)) 0 var(--p2));
+}
+
+.multi-image.layer-4 {
+  clip-path: inset(0 0 0 var(--p3));
+}
+
+.multi-labels {
+  bottom: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  left: 1rem;
+  pointer-events: none;
+  position: absolute;
+  right: 1rem;
+  z-index: 4;
+}
+
+.multi-labels span {
+  background: rgba(238, 238, 238, 0.84);
+  color: #363636;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.15;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.45rem;
+  text-align: center;
+}
+
+.compare-scene-label {
+  background: rgba(0, 0, 0, 0.58);
+  color: #fff;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  left: 1rem;
+  line-height: 1.1;
+  padding: 0.45rem 0.7rem;
+  position: absolute;
+  top: 1rem;
+  z-index: 3;
+}
+
+.multi-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  touch-action: pan-y;
+  width: 100%;
+  z-index: 5;
+}
+
+.multi-range.range-1 {
+  z-index: 7;
+}
+
+.multi-range.range-2 {
+  z-index: 6;
+}
+
+.multi-range.range-3 {
+  z-index: 5;
+}
+
+.multi-handle {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 1.25rem;
+  font-weight: 700;
+  height: 2.7rem;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2.7rem;
+  z-index: 4;
+}
+
+.multi-handle::before {
+  background: #fff;
+  bottom: -100vh;
+  content: '';
+  left: 50%;
+  position: absolute;
+  top: -100vh;
+  transform: translateX(-50%);
+  width: 3px;
+  z-index: -1;
+}
+
+.multi-handle.handle-1 {
+  left: var(--p1);
+}
+
+.multi-handle.handle-2 {
+  left: var(--p2);
+}
+
+.multi-handle.handle-3 {
+  left: var(--p3);
+}
+
+pre {
+  border-radius: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .publication-title {
+    font-size: 2rem !important;
+  }
+
+  .multi-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .multi-labels span {
+    font-size: 0.95rem;
+    min-height: 2.2rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .multi-labels {
+    gap: 0.35rem;
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .multi-labels span {
+    font-size: 0.78rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
 }
