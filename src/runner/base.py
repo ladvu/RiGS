@@ -96,8 +96,6 @@ class BaseRunner:
             depth_min=cfg.depth_min,
             depth_max=cfg.depth_max,
             cache_force_reload=cfg.cache_force_reload,
-            mask_type=cfg.mask_type,
-            depth_type=cfg.depth_type,
             depth_noise_scale=cfg.depth_noise_scale
         )
         if not self.parser.loaded:

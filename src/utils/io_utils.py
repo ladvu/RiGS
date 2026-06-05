@@ -15,6 +15,10 @@ import math
 import json
 
 
+def _sorted_zip_png_names(z: zipfile.ZipFile) -> List[str]:
+    return sorted([name for name in z.namelist() if name.endswith(".png")])
+
+
 def read_depth_artifacts(zip_file_path: Path):
     """
     Read metric depth from zipped exr files.
@@ -86,9 +90,13 @@ def read_flow_artifacts(zip_file_path:str):
                     flow = cv2.imdecode(np_arr, cv2.IMREAD_UNCHANGED)
                     flows.append(flow)
     flows = np.stack(flows, axis=0)
-    fwd_weights = np.stack(fwd_weights, axis=0)
-    bwd_weights = np.stack(bwd_weights, axis=0)
     H, W = flows.shape[1:3]
+    if len(fwd_weights) == len(flows) and len(bwd_weights) == len(flows):
+        fwd_weights = np.stack(fwd_weights, axis=0)
+        bwd_weights = np.stack(bwd_weights, axis=0)
+    else:
+        fwd_weights = np.ones((len(flows), H, W), dtype=np.float32)
+        bwd_weights = np.ones((len(flows), H, W), dtype=np.float32)
     
     # Convert from uint16 back to flow values
     # flows shape: (N, H, W, 4) where channels are [fwd_x, fwd_y, bwd_x, bwd_y]
@@ -127,21 +135,27 @@ def read_tapnet_artifacts(data_dir):
     ) for i in range(num_frames)]
     return tracks
 
+def read_mask_artifacts(zip_file_path: Path, artifact_name: str = "mask") -> torch.Tensor:
+    """
+    Read binary masks from zipped PNG files.
+    """
+    masks = []
+    with zipfile.ZipFile(zip_file_path, "r") as z:
+        for file_name in _sorted_zip_png_names(z):
+            with z.open(file_name) as f:
+                mask_buffer = np.frombuffer(f.read(), dtype=np.uint8)
+                mask = cv2.imdecode(mask_buffer, cv2.IMREAD_UNCHANGED)
+                assert mask is not None, f"Failed to decode {artifact_name} {file_name}"
+                masks.append(torch.from_numpy(mask.copy() > 0))
+    assert len(masks) > 0, f"No PNG masks found in {zip_file_path}"
+    return torch.stack(masks, dim=0)
+
+
 def read_static_mask_artifacts(zip_file_path: Path) -> torch.Tensor:
     """
     Read static-valid binary masks from zipped PNG files.
     """
-    masks = []
-    with zipfile.ZipFile(zip_file_path, "r") as z:
-        for file_name in sorted(z.namelist()):
-            if not file_name.endswith(".png"):
-                continue
-            with z.open(file_name) as f:
-                mask_buffer = np.frombuffer(f.read(), dtype=np.uint8)
-                mask = cv2.imdecode(mask_buffer, cv2.IMREAD_UNCHANGED)
-                assert mask is not None, f"Failed to decode static mask {file_name}"
-                masks.append(torch.from_numpy(mask.copy() > 0))
-    return torch.stack(masks, dim=0)
+    return read_mask_artifacts(zip_file_path, "static mask")
 
 
 def read_flow_consistency_artifacts(zip_file_path: Path) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -171,16 +185,53 @@ def read_flow_consistency_artifacts(zip_file_path: Path) -> Tuple[torch.Tensor, 
     return torch.stack(fwd_masks, dim=0), torch.stack(bwd_masks, dim=0)
 
 
-def load_vipe_data(dataroot, artifact_name:str) -> Mapping:
+def load_vipe_data(
+    dataroot,
+    artifact_name: str,
+) -> Mapping:
     depths = read_depth_artifacts(os.path.join(dataroot,  'depth', f"{artifact_name}.zip"))
     fwd_flows, bwd_flows, _, _ = read_flow_artifacts(os.path.join(dataroot,  'flow', f"{artifact_name}.zip"))
     fwd_masks, bwd_masks = read_flow_consistency_artifacts(os.path.join(dataroot,  'flow_consistency', f"{artifact_name}.zip"))
-    foreground_masks = ~read_static_mask_artifacts(os.path.join(dataroot, "static_mask", f"{artifact_name}.zip"))
+    static_mask_path = os.path.join(dataroot, "static_mask", f"{artifact_name}.zip")
+    foreground_masks = ~read_static_mask_artifacts(static_mask_path)
     rgbs = read_image_artifacts(os.path.join(dataroot, "images", artifact_name))
     poses = read_pose_artifacts(os.path.join(dataroot, "pose", f"{artifact_name}.npz"))
     # extrinsics = closed_form_inverse_se3(poses)
     intrinsics = read_intrinsics_artifacts(os.path.join(dataroot, "intrinsics", f"{artifact_name}.npz"))
     query_tracks_2d = read_tapnet_artifacts(os.path.join(dataroot, "tapnet", artifact_name))
+
+    num_frames = rgbs.shape[0]
+    frame_counts = {
+        "depth": depths.shape[0],
+        "forward flow": fwd_flows.shape[0],
+        "backward flow": bwd_flows.shape[0],
+        "forward flow consistency": fwd_masks.shape[0],
+        "backward flow consistency": bwd_masks.shape[0],
+        "foreground mask": foreground_masks.shape[0],
+        "pose": poses.shape[0],
+        "intrinsics": intrinsics.shape[0],
+        "tapnet": len(query_tracks_2d),
+    }
+    bad_counts = {k: v for k, v in frame_counts.items() if v != num_frames}
+    assert not bad_counts, (
+        f"Artifact frame-count mismatch for {artifact_name}: "
+        f"rgb has {num_frames}, mismatched artifacts are {bad_counts}"
+    )
+
+    image_hw = rgbs.shape[1:3]
+    image_sized_artifacts = {
+        "depth": depths.shape[1:3],
+        "forward flow": fwd_flows.shape[1:3],
+        "backward flow": bwd_flows.shape[1:3],
+        "forward flow consistency": fwd_masks.shape[1:3],
+        "backward flow consistency": bwd_masks.shape[1:3],
+        "foreground mask": foreground_masks.shape[1:3],
+    }
+    bad_shapes = {k: v for k, v in image_sized_artifacts.items() if v != image_hw}
+    assert not bad_shapes, (
+        f"Artifact image-size mismatch for {artifact_name}: "
+        f"rgb is {tuple(image_hw)}, mismatched artifacts are {bad_shapes}"
+    )
 
     # cam_points = depth_map_to_cam_coords(depths, intrinsics)
     # world_points = depth_map_to_world_coords(depths, intrinsics, extrinsics)

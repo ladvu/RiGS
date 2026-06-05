@@ -21,43 +21,36 @@ class Config:
     render_point: bool = False
     # point size
     point_size: int = 1
-
     # eval step
     eval_step: Optional[int] = 30_000
     # Path to the Mip-NeRF 360 dataset
-    data_dir: str = "../data/nvidia_processed"
+    data_dir: str = "../data/custom"
     # data_dir: str = "../data/davis/train"
     # data name
-    data_name: str = "Balloon1"
+    data_name: str = "dog-example"
     # Downsample factor for the dataset
     data_factor: int = 2
     # Directory to save results
-    mask_type:str = "default"
-    depth_type: Literal["default", "zoedepth", "depthpro", "moge", "unidepth"] = "default"
     cache_dir: str = "../cache"
     cache_force_reload: bool = False
     #
     seed: int = 114514
     #val
     val_dir: Optional[str] = None
-
-    # val_dir: Optional[str] = None
-
     result_dir: str = "../results"
     # exp name
-    exp_name: str = "train"
+    exp_name: str = "dog-example"
     # Every N images there is a test image
     test_every: int = 1
-
     # A global scaler that applies to the scene size related parameters
     global_scale: float = 1.0
     # Normalize the world space
     normalize_world_space: bool = True
-
+    # Optional relative depth noise for data augmentation/debugging.
+    depth_noise_scale: float = 0.0
     depth_thres: float = 0.5
     depth_min: float = 2e-3
     depth_max: float = 1000.0
-
     max_points: int = 1_000_000
     # sample rate
     sample_rate: int = 1
@@ -65,7 +58,6 @@ class Config:
     voxel_size: float = 0.01
     # op
     opacity_multiplier: float = 0.05
-
     # Port for the viewer server
     vis: bool = True
     port: int = 8881
@@ -185,28 +177,14 @@ class Config:
     velocity_lambda: float = 0.01
     lifespan_lambda: float = 0.5
     scale_lambda: float = 0.5
-
-    depth_noise_scale: float = 0.0
-    # locality_lambda: float = 0.01
-    # velocity_reg_lambda: float = 0.0 #0.1
-    # velocity_reg_thres: float = 0.0 #0.1
-    # iso_lambda: float = 1e-2
-    # conf_lambda: float = 1e-2
-    # scale_reg_lambda: float = 1.0
-    # scale_reg_lambda: float = 0.0
     normal_start_iter: int = 7_000
-
     # two-stage training 
     init_steps: int = 5_000
-
     # Model for splatting.
     model_type: Literal["2dgs", "3dgs"] = "2dgs"
     # strategy
     strategy: Literal["default", "mcmc"] = "default"
-
-    # Dump information to tensorboard every this steps
     tb_every: int = 1000
-    # Save training images to tensorboard
     tb_save_image: bool = True
 
 
@@ -229,4 +207,3 @@ class Config:
         self.refine_mask_start_iter = int(self.refine_mask_start_iter * factor)
         self.refine_mask_stop_iter = int(self.refine_mask_stop_iter * factor)
         self.refine_mask_every = int(self.refine_mask_every * factor)
-

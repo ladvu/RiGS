@@ -58,10 +58,8 @@ class Parser:
         depth_thres: float = 0.5,
         depth_min: float = 1e-3,
         depth_max: float = 1000.0,
-        mask_type: str = "default",
         cache_force_reload: bool = False,
         depth_noise_scale: float = 0.0,
-        depth_type: str = "default"
     ):
         self.data_dir = data_dir
         self.data_name = name
@@ -94,7 +92,7 @@ class Parser:
         self.cache_data_path = cache_data_path
         
         print(f"Cache not found or invalid, processing from source data...")
-        data = load_vipe_data(data_dir, name, mask_type=mask_type, depth_type=depth_type)
+        data = load_vipe_data(data_dir, name)
         (
             intrinsics,
             poses,
